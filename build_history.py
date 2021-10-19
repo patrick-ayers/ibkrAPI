@@ -1,51 +1,40 @@
 ''' Demonstrates how an application can request the current time '''
-import datetime
-from threading import Thread
-import time
-import pandas as pd
-import pytz as tz
 
-from contracts import futures, equities
 
 import ib_insync
 
-empty_df = pd.DataFrame(columns=['date', 'open', 'high', 'low', 'close', 'avg', 'vol'])
-
-
-
 def main():
-    contracts = futures
+    from contracts import equities, futures
+    ib = ib_insync.IB()
 
+    ib.connect('127.0.0.1', 7497, clientId=100, readonly=True)
+    if not ib.isConnected():
+        ib.connect('127.0.0.1', 4002, clientId=100, readonly=True)
 
-    # TODO Automate to grab most recent Friday
-    last_friday_close = datetime.datetime(2021, 10, 15, 23, 00, 00, 0)
-
-    prior_fridays = [
-        (last_friday_close - datetime.timedelta(n)).strftime("%Y%m%d %H:%M:%S") for n in range(0, 50  * 7, 7)
-    ]
-    req_idx = 0
-    for contract in contracts:
-        output = empty_df.copy()
-        ib = ib_insync.IB()
-        ib.connect(readonly=True)
-        ib.qualifyContracts(contract)
-
-        for friday in prior_fridays:
-            try:
-                output.append(util.df(ib.reqHistoricalData(
+    futures = [ib_insync.ContFuture(contract.symbol, contract.exchange) for contract in futures]
+    equities = [ib_insync.Stock(contract.symbol, contract.exchange) for contract in equities]
+    for contracts in [futures, equities]:
+        for contract in contracts:
+            print(f'Getting {contract}')
+            dt = ''
+            barsList = []
+            while True:
+                bars = ib.reqHistoricalData(
                     contract,
-                    friday,
-                    barSizeSetting='1 min',
-                    durationStr='5 D',
+                    endDateTime=dt,
+                    durationStr='10 D',
+                    barSizeSetting='5 mins',
                     whatToShow='TRADES',
-                    useRTH=useRTH,
-                    formatDate=2
-                )))
-                time.sleep(10)  # sleep to allow enough time for data to be returned
-            except:
-                pass
-    # Disconnect from TWS
-    client.disconnect()
+                    useRTH=False,
+                    formatDate=2)
+                if not bars:
+                    break
+                barsList.append(bars)
+                dt = bars[0].date.strftime("%Y%m%d %H:%M:%S")
+                print(f'{contract.symbol}: {dt}')
+            allBars = [b for bars in reversed(barsList) for b in bars]
+            df = ib_insync.util.df(allBars)
+            df.to_csv(f'full_{contract.symbol}_TRADES_5M.csv', index=False)
 
 
 if __name__ == '__main__':
