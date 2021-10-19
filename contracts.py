@@ -49,6 +49,9 @@ for x in ['MYM', 'ZT', 'ZF', 'ZN', 'ZB', 'ZC', 'ZS', ]:
 for x in ['SI', 'GC', 'HG', 'RB', 'HO', 'CL', 'NG', ]:
     futures.append(get_perp(x, 'NYMEX'))
 
+for x in ['EUR', 'JPY']:
+    futures.append(get_perp(x))
+
 etfs = ["AMLP",
         #        "ASHR",
         "BKLN",
