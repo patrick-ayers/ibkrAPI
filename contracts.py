@@ -119,3 +119,11 @@ exchange = {'ASHR': 'ARCA',
 
 for x in etfs:
     equities.append(get_equity(x, exchange.setdefault(x, 'SMART')))
+
+currencies = ['EURUSD',
+              'USDJPY',
+              'GBPUSD',
+              'USDCHF',
+              'AUDUSD',
+              'USDCAD',
+              ]
