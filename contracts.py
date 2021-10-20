@@ -40,10 +40,10 @@ def get_fx_pair(cur='EUR', base='USD'):
 futures = []
 equities = []
 
-for x in ['MES', 'MNQ', 'M2K']:
+for x in ['ES', 'NQ', 'RTY', 'MES', 'MNQ', 'M2K']:
     futures.append(get_perp(x))
 
-for x in ['MYM', 'ZT', 'ZF', 'ZN', 'ZB', 'ZC', 'ZS', ]:
+for x in ['YM', 'MYM', 'ZT', 'ZF', 'ZN', 'ZB', 'ZC', 'ZS', ]:
     futures.append(get_perp(x, 'ECBOT'))
 
 for x in ['SI', 'GC', 'HG', 'RB', 'HO', 'CL', 'NG', ]:
